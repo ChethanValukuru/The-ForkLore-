@@ -12,6 +12,7 @@
 
 // ---- Config -----------------------------------------------------------------
 var RECIPIENT  = 'chethanvalukuru@gmail.com'; // where the weekly list is sent
+var CC         = 'kcmiruthularani2003@gmail.com'; // cofounders CC'd (comma-separate for more)
 var SHEET_NAME = 'Waitlist';                  // tab name inside the spreadsheet
 var HEADERS    = ['Timestamp', 'Name', 'Email'];
 // -----------------------------------------------------------------------------
@@ -128,7 +129,10 @@ function weeklyDigest() {
     ? ('ForkLore waitlist — ' + count + ' signups\n\n' + textLines.join('\n'))
     : 'ForkLore waitlist — no signups yet.';
 
-  MailApp.sendEmail({ to: RECIPIENT, subject: subject, body: body, htmlBody: html });
+  var options = { subject: subject, body: body, htmlBody: html };
+  if (CC && CC.trim()) options.cc = CC.trim();
+  options.to = RECIPIENT;
+  MailApp.sendEmail(options);
 }
 
 /** Run ONCE from the editor to schedule weeklyDigest() every Sunday ~8am. */
