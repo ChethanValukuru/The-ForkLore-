@@ -1,0 +1,5 @@
+# Not part of the deployed site — keep the Apps Script source (and its
+# recipient/CC emails) out of the public build.
+backend/
+DEPLOY.md
+README.md
