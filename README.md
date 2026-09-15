@@ -3,9 +3,11 @@
 Static landing page for the ForkLore waitlist.
 
 ## Structure
-- `index.html` — the landing page (self-contained; deployed to Vercel).
-- `vercel.json` — static hosting config (clean URLs, no-cache on the HTML so
-  edits go live immediately).
+- `index.html` — the landing page markup (~60 KB; deployed to Vercel).
+- `assets/` — fonts (woff2), images (webp), and JS (app bundle + React/ReactDOM),
+  referenced by `index.html`. Filenames are stable, so they're cached long-term.
+- `vercel.json` — static hosting config: clean URLs, no-cache on the HTML so
+  edits go live immediately, and immutable long-cache on `assets/`.
 - `.vercelignore` — keeps `backend/` out of the public deployment.
 - `backend/` — Google Apps Script that powers the waitlist form:
   - `Code.gs` — receives form submissions, appends them to a Google Sheet, and
