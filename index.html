@@ -4,7 +4,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="assets/2278b11c-c43f-43a1-af62-0a721fa7c3b9.js"></script>
-</head>
+<style id="forklore-mobile">
+@media (max-width: 820px){
+  html,body{overflow-x:hidden !important;}
+  /* unlock the fixed 1280px desktop canvas */
+  [style*="min-width: 1280px"]{min-width:0 !important;}
+  [style*="width: 1280px"]{width:100% !important;}
+  /* collapse every multi-column grid to a single column */
+  [style*="grid-template-columns"]{grid-template-columns:1fr !important; gap:24px !important;}
+  /* horizontal gutters */
+  [style*="padding: 0 52px"]{padding:0 22px !important;}
+  [style*="padding: 0 60px"]{padding:0 22px !important;}
+  [style*="padding: 196px 52px 0"]{padding:112px 22px 44px !important;}
+  /* tame huge section heights */
+  [style*="min-height: 930px"]{min-height:auto !important;}
+  /* shrink oversized display type */
+  [style*="font-size: 96px"]{font-size:44px !important;}
+  [style*="font-size: 62px"]{font-size:34px !important;}
+  [style*="font-size: 58px"]{font-size:33px !important;}
+  [style*="font-size: 56px"]{font-size:32px !important;}
+  [style*="font-size: 51px"]{font-size:30px !important;}
+  [style*="font-size: 49px"]{font-size:30px !important;}
+  [style*="font-size: 46px"]{font-size:29px !important;}
+  [style*="font-size: 40px"]{font-size:27px !important;}
+  /* hero image is position:absolute right 57% -> make it a stacked banner */
+  [style*="background-image: url"][style*="position: absolute"]{
+    position:relative !important; width:100% !important; height:230px !important;
+    right:auto !important; top:auto !important; left:auto !important;
+    margin-top:22px !important; border-radius:14px !important;
+  }
+  /* fixed nav: tighten; hide the text links but keep the logo + Join button */
+  [data-nav="1"]{padding:13px 20px !important;}
+  [data-nav="1"] a[href="#how"],
+  [data-nav="1"] a[href="#nutrition"],
+  [data-nav="1"] a[href="#journey"]{display:none !important;}
+}
+</style></head>
 <body>
 <x-dc>
 <helmet>
