@@ -492,7 +492,12 @@
         <input data-field="email" type="email" placeholder="Email address" style="font-family: inherit; font-size: 17.5px; color: #173044; background: #ffffff; border: 1px solid #E0D9CF; border-radius: 3px; padding: 15px 16px; outline: none; transition: border-color 260ms ease, box-shadow 260ms ease;" style-focus="border-color: #55919F; box-shadow: 0 0 0 3px rgba(85,145,159,.14);">
         <button type="submit" style="font-family: inherit; display: inline-flex; align-items: center; gap: 10px; background: #0F2C44; color: #F8F4F0; font-size: 17.5px; padding: 15px 26px; border: none; border-radius: 3px; cursor: pointer; transition: transform 300ms cubic-bezier(.16,1,.3,1), box-shadow 300ms ease;" style-hover="transform: translateY(-2px); box-shadow: 0 12px 26px rgba(15,44,68,.24);">Join <span style="font-size: 17.5px;">→</span></button>
       </form>
-      <p data-reveal="1" data-delay="320" style="font-size: 16px; line-height: 1.7; color: #55636F; margin: 24px 0 0; opacity: 0; transform: translateY(20px);">Don’t just take our word for it — join the waitlist and start a free <strong style="color: #2E7C90; font-weight: 600;">3-day trial</strong>.</p>
+      <div data-trial="1" data-reveal="1" data-delay="320" style="margin: 26px 0 0; text-align: center; opacity: 0; transform: translateY(20px); transition: opacity 320ms ease, transform 420ms cubic-bezier(.16,1,.3,1);">
+        <span style="display: inline-flex; align-items: center; gap: 10px; padding: 11px 22px 11px 16px; background: #EEF4F2; border: 1px solid #D8E4DF; border-radius: 999px; font-size: 15.5px; line-height: 1.4; color: #3A4C5E; text-align: left; max-width: 100%;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7C90" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M12 3l7 3v5c0 4.2-2.8 7.3-7 8.6C7.8 18.3 5 15.2 5 11V6z"></path><path d="M9 11.6l2 2 4.2-4.4"></path></svg>
+          <span>Not convinced? Start a free <strong style="color: #2E7C90; font-weight: 600; white-space: nowrap;">3-day trial</strong> — no commitment.</span>
+        </span>
+      </div>
       <div data-waitlist-error="1" style="font-size: 15px; color: #A8543F; margin-top: 14px; height: 0; opacity: 0; transition: opacity 300ms ease;">Please add your name and a valid email.</div>
 
       <div data-waitlist-done="1" style="display: none; align-items: center; justify-content: center; gap: 14px; background: #ffffff; border: 1px solid #E0D9CF; border-radius: 3px; padding: 22px 26px; opacity: 0; transform: translateY(14px); transition: opacity 600ms ease, transform 700ms cubic-bezier(.16,1,.3,1);">
@@ -748,11 +753,14 @@ class Component extends DCLogic {
         if (err) { err.style.opacity = '0'; err.style.height = '0'; }
         try { fetch('https://script.google.com/macros/s/AKfycbzWi5G-IdZoZgcxJrnbsmPrzLMFnICBeBj8k3M5nE6BrKnvseI6gUgDgoyeyMTzUA5h/exec', { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ name: name, email: email }) }).catch(function(){}); } catch (e) {}
         if (msg) msg.textContent = 'You are on the list, ' + name.split(' ')[0] + '.';
+        const trial = document.querySelector('[data-trial]');
+        if (trial) { trial.style.opacity = '0'; trial.style.transform = 'translateY(-8px)'; }
         form.style.transition = 'opacity 320ms ease, transform 420ms ' + EASE;
         form.style.opacity = '0';
         form.style.transform = 'translateY(-8px)';
         setTimeout(() => {
           form.style.display = 'none';
+          if (trial) trial.style.display = 'none';
           if (done) {
             done.style.display = 'flex';
             void done.offsetWidth;
