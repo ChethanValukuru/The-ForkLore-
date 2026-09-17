@@ -33,11 +33,18 @@
     right:auto !important; top:auto !important; left:auto !important;
     margin-top:22px !important; border-radius:14px !important;
   }
-  /* fixed nav: tighten; hide the text links but keep the logo + Join button */
-  [data-nav="1"]{padding:13px 20px !important;}
+  /* fixed nav: give it a solid backdrop so scrolled content never collides,
+     tighten padding, hide the text links but keep the logo + Join button */
+  [data-nav="1"]{padding:12px 20px !important; background:rgba(248,244,240,0.94) !important;
+    -webkit-backdrop-filter:saturate(1.5) blur(12px) !important; backdrop-filter:saturate(1.5) blur(12px) !important;
+    box-shadow:0 1px 14px rgba(23,48,68,0.10) !important;}
   [data-nav="1"] a[href="#how"],
   [data-nav="1"] a[href="#nutrition"],
   [data-nav="1"] a[href="#journey"]{display:none !important;}
+
+  /* stacked "01/02/03" problem cards: drop the column dividers + side padding
+     so all three align flush-left instead of stair-stepping */
+  [style*="repeat(3, 1fr)"] > div{border-left:none !important; padding-left:0 !important; padding-right:0 !important;}
 }
 </style></head>
 <body>
