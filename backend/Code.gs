@@ -2,8 +2,9 @@
  * ForkLore waitlist backend — Google Apps Script.
  *
  * What it does:
- *   1. doPost()        -> receives {name, email} from the landing page form and
- *                         appends a row to the bound Google Sheet.
+ *   1. doPost()        -> receives {name, email} from the landing page form,
+ *                         appends a row to the Google Sheet, and emails the new
+ *                         signup a welcome message (with the WhatsApp invite).
  *   2. weeklyDigest()  -> runs every Sunday, emails the full list to RECIPIENT.
  *   3. setupTrigger()  -> run ONCE by hand to schedule the Sunday email.
  *
@@ -11,10 +12,16 @@
  */
 
 // ---- Config -----------------------------------------------------------------
-var RECIPIENT  = 'chethanvalukuru@gmail.com'; // where the weekly list is sent
-var CC         = 'kcmiruthularani2003@gmail.com'; // cofounders CC'd (comma-separate for more)
-var SHEET_NAME = 'Waitlist';                  // tab name inside the spreadsheet
+var RECIPIENT  = 'chethanvalukuru@gmail.com';       // where the weekly list is sent
+var CC         = 'kcmiruthularani2003@gmail.com';   // cofounders CC'd (comma-separate for more)
+var SHEET_NAME = 'Waitlist';                         // tab name inside the spreadsheet
 var HEADERS    = ['Timestamp', 'Name', 'Email'];
+
+// Welcome email
+var BRAND         = 'The ForkLore';
+var SENDER        = 'theforklore.in@gmail.com';      // must be a verified "send mail as"
+                                                     // alias on the account running this script
+var WHATSAPP_LINK = 'https://chat.whatsapp.com/GvDj8SzE1y74BXTba77PVZ?s=sh&p=a&mlu=4&ilr=4';
 // -----------------------------------------------------------------------------
 
 /** Returns the Waitlist sheet, creating it (with headers) if missing. */
@@ -30,7 +37,7 @@ function getSheet_() {
   return sheet;
 }
 
-/** Endpoint the landing page POSTs to. Appends one row per submission. */
+/** Endpoint the landing page POSTs to. Appends a row + sends a welcome email. */
 function doPost(e) {
   var lock = LockService.getScriptLock();
   try {
@@ -56,7 +63,7 @@ function doPost(e) {
 
     var sheet = getSheet_();
 
-    // skip duplicate emails (case-insensitive)
+    // skip duplicate emails (case-insensitive) — no second welcome email
     var existing = sheet.getLastRow() > 1
       ? sheet.getRange(2, 3, sheet.getLastRow() - 1, 1).getValues()
       : [];
@@ -67,6 +74,10 @@ function doPost(e) {
     }
 
     sheet.appendRow([new Date(), name, email]);
+
+    // Welcome email — never let a mail failure break the signup.
+    try { sendWelcome_(name, email); } catch (mailErr) {}
+
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
@@ -78,6 +89,57 @@ function doPost(e) {
 /** Simple GET so you can confirm the web app is live in a browser. */
 function doGet() {
   return json_({ ok: true, service: 'forklore-waitlist' });
+}
+
+/** Sends the branded welcome email to a new signup. */
+function sendWelcome_(name, email) {
+  var first = escapeHtml_((name.split(' ')[0] || 'there'));
+  var link = escapeHtml_(WHATSAPP_LINK);
+  var subject = 'Welcome to ' + BRAND;
+
+  var html =
+    '<div style="background:#FAF9F7;padding:32px 0;font-family:Arial,Helvetica,sans-serif;">' +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">' +
+        '<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#ffffff;border:1px solid #ECE6DD;border-radius:14px;overflow:hidden;">' +
+          '<tr><td style="background:#173044;padding:22px 32px;">' +
+            '<span style="font-family:Georgia,\'Times New Roman\',serif;font-size:22px;color:#F8F4F0;letter-spacing:.3px;">The ForkLore</span>' +
+          '</td></tr>' +
+          '<tr><td style="padding:32px;">' +
+            '<p style="margin:0 0 16px;font-size:16px;color:#173044;">Hi ' + first + ',</p>' +
+            '<p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#3A4C5E;">Thank you for joining <strong>' + BRAND + '</strong> waitlist &mdash; we&rsquo;re glad to have you.</p>' +
+            '<p style="margin:0 0 22px;font-size:15px;line-height:1.65;color:#3A4C5E;">We&rsquo;re building a nutrition system that turns your goal into planned, portion-controlled meals &mdash; so you can stop deciding what to eat and just follow one clear plan.</p>' +
+            '<p style="margin:0 0 20px;font-size:15px;line-height:1.65;color:#3A4C5E;">As an early member, we&rsquo;d love to have you in our community. Join our WhatsApp group for launch updates, early access, and a direct line to the team:</p>' +
+            '<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border-radius:8px;background:#25D366;">' +
+              '<a href="' + link + '" style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:8px;">Join our WhatsApp group &rarr;</a>' +
+            '</td></tr></table>' +
+            '<p style="margin:24px 0 0;font-size:15px;line-height:1.65;color:#3A4C5E;">We&rsquo;ll be in touch soon.</p>' +
+            '<p style="margin:18px 0 0;font-size:15px;color:#173044;">Warm regards,<br><strong>The ForkLore team</strong></p>' +
+          '</td></tr>' +
+          '<tr><td style="padding:16px 32px;border-top:1px solid #ECE6DD;background:#FAF9F7;">' +
+            '<p style="margin:0;font-size:12px;line-height:1.5;color:#8A94A0;">You&rsquo;re receiving this because you joined the ForkLore waitlist.</p>' +
+          '</td></tr>' +
+        '</table>' +
+      '</td></tr></table>' +
+    '</div>';
+
+  var plain =
+    'Hi ' + (name.split(' ')[0] || 'there') + ',\n\n' +
+    'Thank you for joining The ForkLore waitlist — we\'re glad to have you.\n\n' +
+    'We\'re building a nutrition system that turns your goal into planned, portion-controlled meals, so you can stop deciding what to eat and just follow one clear plan.\n\n' +
+    'As an early member, we\'d love to have you in our community. Join our WhatsApp group for launch updates, early access, and a direct line to the team:\n\n' +
+    WHATSAPP_LINK + '\n\n' +
+    'We\'ll be in touch soon.\n\n' +
+    'Warm regards,\nThe ForkLore team';
+
+  var options = { htmlBody: html, name: BRAND, replyTo: SENDER };
+  // Send AS the brand address only if it's a verified alias on this account;
+  // otherwise fall back to the owner address so the signup never fails.
+  try {
+    var aliases = GmailApp.getAliases();
+    if (aliases && aliases.indexOf(SENDER) !== -1) options.from = SENDER;
+  } catch (aliasErr) {}
+
+  GmailApp.sendEmail(email, subject, plain, options);
 }
 
 /** Emails the full waitlist to RECIPIENT. Wired to a weekly Sunday trigger. */
@@ -148,6 +210,11 @@ function setupTrigger() {
     .onWeekDay(ScriptApp.WeekDay.SUNDAY)
     .atHour(8)
     .create();
+}
+
+/** Optional: send yourself the welcome email to preview it. Run from the editor. */
+function previewWelcome() {
+  sendWelcome_('Preview', RECIPIENT);
 }
 
 // ---- helpers ----------------------------------------------------------------
