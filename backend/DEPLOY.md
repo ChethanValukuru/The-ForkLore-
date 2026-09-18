@@ -40,6 +40,29 @@ Send me that Web app URL and I'll wire it into the form, **or** do it yourself:
 in `ForkLore Landing.html` find the token `__WAITLIST_ENDPOINT__` and replace it
 with your URL.
 
+## 6. Welcome email (sent to each new signup)
+`doPost` emails every new signup a branded welcome with the WhatsApp invite,
+sent **as `theforklore.in@gmail.com`**. Because the script runs under
+`chethanvalukuru@gmail.com`, that address must be a verified *send-as* alias:
+
+1. **Add the alias** — in the **chethanvalukuru@gmail.com** Gmail:
+   Settings (⚙) → *See all settings* → **Accounts and Import** →
+   **Send mail as** → *Add another email address* → enter
+   `theforklore.in@gmail.com` → Next → Send verification. A code is sent to the
+   **theforklore.in@gmail.com** inbox — open it and confirm. (You need access to
+   that inbox.)
+2. **Update the code** — paste the latest `Code.gs`, Save.
+3. **Authorize Gmail + preview** — in the editor, run **`previewWelcome`** once.
+   Approve the new Gmail permission when asked. A welcome email should arrive at
+   `chethanvalukuru@gmail.com`, shown as **from The ForkLore
+   (theforklore.in@gmail.com)**. If it arrives from the wrong address, the alias
+   isn't set up yet (step 1).
+4. **Re-deploy** so the live endpoint runs the new code: **Deploy → Manage
+   deployments → edit (pencil) → Version: New version → Deploy** (keeps the same
+   URL). *(The Sunday digest updates automatically; only the web app needs this.)*
+
+Change the message or WhatsApp link in `Code.gs` (`WHATSAPP_LINK`, `sendWelcome_`).
+
 ## Notes / limits
 - The form posts with `mode: 'no-cors'` (fire-and-forget), which avoids all CORS
   setup. The visitor always sees the success state; the row lands in the Sheet.
